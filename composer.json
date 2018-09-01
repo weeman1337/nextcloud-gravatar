@@ -1,0 +1,25 @@
+{
+    "name": "Gravatar",
+    "description": "Adds Gravatar support to Nextcloud",
+    "type": "project",
+    "license": "AGPL",
+    "authors": [
+        {
+            "name": "Michael Weimann"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "OCA\\Gravatar\\": "lib/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OCA\\Gravatar\\Test\\": "test/Unit/"
+        }
+    }
+}

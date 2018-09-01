@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>gravatar</id>
+    <name>Gravatar</name>
+    <summary>Adds Gravatar support to Nextcloud</summary>
+    <description><![CDATA[This app queries the Gravatar service for getting user avatars.
+
+**Privacy note**
+This app sends hashed versions of the users' email address to Gravatar.
+See also their privacy policy: https://automattic.com/privacy/ .]]></description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author mail="mail@michael-weimann.eu" homepage="https://github.com/weeman1337/nextcloud-gravatar">Michael Weimann</author>
+    <namespace>Gravatar</namespace>
+    <category>customization</category>
+    <category>integration</category>
+    <bugs>https://github.com/weeman1337/nextcloud-gravatar/issues</bugs>
+    <dependencies>
+        <nextcloud min-version="14" max-version="14"/>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>Gravatar</name>
+            <route>gravatar.page.index</route>
+        </navigation>
+    </navigations>
+</info>
