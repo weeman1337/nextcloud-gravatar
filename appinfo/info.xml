@@ -19,10 +19,7 @@ See also their privacy policy: https://automattic.com/privacy/ .]]></description
     <dependencies>
         <nextcloud min-version="14" max-version="14"/>
     </dependencies>
-    <navigations>
-        <navigation>
-            <name>Gravatar</name>
-            <route>gravatar.page.index</route>
-        </navigation>
-    </navigations>
+    <settings>
+        <admin>OCA\Gravatar\Settings\SecuritySettings</admin>
+    </settings>
 </info>
