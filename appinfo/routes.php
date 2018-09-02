@@ -26,5 +26,7 @@ return [
 	'routes' => [
 		['name' => 'Settings#enableAskUserSetting', 'url' => '/settings/askUser/enable', 'verb' => 'GET',],
 		['name' => 'Settings#disableAskUserSetting', 'url' => '/settings/askUser/disable', 'verb' => 'GET',],
+		['name' => 'Settings#enableUserGravatar', 'url' => '/settings/useGravatar/enable', 'verb' => 'GET',],
+		['name' => 'Settings#disableUserGravatar', 'url' => '/settings/useGravatar/disable', 'verb' => 'GET',],
 	]
 ];

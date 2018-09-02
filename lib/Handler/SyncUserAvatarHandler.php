@@ -32,7 +32,6 @@ use OCP\IUser;
 interface SyncUserAvatarHandler {
 	/**
 	 * Implementers should check if there is a global avatar for the user.
-	 * If one was found it should directly update the avatar.
 	 *
 	 * @param IUser $user The user to sync the avatar for.
 	 * @return void

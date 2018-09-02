@@ -25,10 +25,13 @@ declare(strict_types=1);
 namespace OCA\Gravatar\Controller;
 
 use OCA\Gravatar\AppInfo\Application;
+use OCA\Gravatar\Handler\DirectUpdateSyncUserAvatarHandler;
 use OCA\Gravatar\Settings\SecuritySettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
+use OCP\IUserSession;
+use OCP\Notification\IManager;
 
 /**
  * This controller handles app settings requests.
@@ -40,12 +43,38 @@ class SettingsController extends Controller {
 	private $config;
 
 	/**
+	 * @var IUserSession
+	 */
+	private $userSession;
+
+	/**
+	 * @var IManager
+	 */
+	private $notificationManager;
+
+	/**
+	 * @var DirectUpdateSyncUserAvatarHandler
+	 */
+	private $directUpdateSyncUserAvatarHandler;
+
+	/**
 	 * SettingsController constructor.
 	 *
 	 * @param IConfig $config
+	 * @param IUserSession $userSession
+	 * @param IManager $notificationManager
+	 * @param DirectUpdateSyncUserAvatarHandler $directUpdateSyncUserAvatarHandler
 	 */
-	public function __construct(IConfig $config) {
+	public function __construct(
+		IConfig $config,
+		IUserSession $userSession,
+		IManager $notificationManager,
+		DirectUpdateSyncUserAvatarHandler $directUpdateSyncUserAvatarHandler
+	) {
 		$this->config = $config;
+		$this->userSession = $userSession;
+		$this->notificationManager = $notificationManager;
+		$this->directUpdateSyncUserAvatarHandler = $directUpdateSyncUserAvatarHandler;
 	}
 
 	/**
@@ -73,7 +102,54 @@ class SettingsController extends Controller {
 	 * @return JSONResponse
 	 */
 	private function setAskUserSetting(bool $enabled): JSONResponse {
-		$this->config->setAppValue(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, $enabled);
+		$this->config->setAppValue(
+			Application::APP_ID,
+			SecuritySettings::SETTING_ASK_USER,
+			$enabled ? 'true' : 'false'
+		);
 		return new JSONResponse(['askUser' => $enabled,]);
+	}
+
+	/**
+	 * Sets the user gravatar setting to enabled and does a one time gravatar sync.
+	 *
+	 * @return JSONResponse
+	 */
+	public function enableUserGravatar(): JSONResponse {
+		$user = $this->userSession->getUser();
+		$this->directUpdateSyncUserAvatarHandler->sync($user);
+		return $this->setUserUseGravatar('true');
+	}
+
+	/**
+	 * Sets the user gravatar setting to disabled.
+	 *
+	 * @return JSONResponse
+	 */
+	public function disableUserGravatar(): JSONResponse {
+		return $this->setUserUseGravatar('false');
+	}
+
+	/**
+	 * Sets the user setting "useGravatar".
+	 * Also marks "useGravatar" notifications as processed.
+	 *
+	 * @param string $useGravatar
+	 * @return JSONResponse
+	 * @throws \OCP\PreConditionNotMetException
+	 */
+	private function setUserUseGravatar(string $useGravatar): JSONResponse {
+		$user = $this->userSession->getUser();
+		$userId = $user->getUID();
+
+		$this->config->setUserValue($userId, Application::APP_ID, 'useGravatar', $useGravatar);
+
+		$notification = $this->notificationManager->createNotification();
+		$notification->setApp(Application::APP_ID)
+			->setUser($userId)
+			->setObject('useGravatar', $userId);
+		$this->notificationManager->markProcessed($notification);
+
+		return new JSONResponse();
 	}
 }

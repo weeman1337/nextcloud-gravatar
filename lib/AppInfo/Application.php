@@ -26,9 +26,12 @@ namespace OCA\Gravatar\AppInfo;
 
 use OCA\Gravatar\GlobalAvatar\GlobalAvatarService;
 use OCA\Gravatar\GlobalAvatar\GravatarService;
+use OCA\Gravatar\Handler\AskSyncUserAvatarHandler;
 use OCA\Gravatar\Handler\DirectUpdateSyncUserAvatarHandler;
 use OCA\Gravatar\Handler\SyncUserAvatarHandler;
 use OCA\Gravatar\Hooks\UserSessionHook;
+use OCA\Gravatar\Notification\Notifier;
+use OCA\Gravatar\Settings\SecuritySettings;
 use \OCP\AppFramework\App;
 
 /**
@@ -56,10 +59,24 @@ class Application extends App {
 			return new GravatarService($httpClient);
 		});
 
-		$container->registerService(SyncUserAvatarHandler::class, function() use ($server, $container) {
+		$container->registerService(DirectUpdateSyncUserAvatarHandler::class, function() use ($server, $container) {
 			$globalAvatarService = $container->query(GlobalAvatarService::class);
 			$avatarManager = $server->getAvatarManager();
 			return new DirectUpdateSyncUserAvatarHandler($globalAvatarService, $avatarManager);
+		});
+
+		$container->registerService(SyncUserAvatarHandler::class, function() use ($container, $server) {
+			$config = $server->getConfig();
+			$askUser = $config->getAppValue(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'false') === 'true';
+
+			if ($askUser === true) {
+				$directUpdateSyncUserAvatarHandler = $container->query(DirectUpdateSyncUserAvatarHandler::class);
+				$notificationManager = $server->getNotificationManager();
+				$config = $server->getConfig();
+				return new AskSyncUserAvatarHandler($notificationManager, $config, $directUpdateSyncUserAvatarHandler);
+			} else {
+				return $container->query(DirectUpdateSyncUserAvatarHandler::class);
+			}
 		});
 
 		$container->registerService(UserSessionHook::class, function() use ($server, $container) {
@@ -67,5 +84,23 @@ class Application extends App {
 			$syncUserAvatarHandler = $container->query(SyncUserAvatarHandler::class);
 			return new UserSessionHook($userSession, $syncUserAvatarHandler);
 		});
+
+		$container->registerService(Notifier::class, function() use ($server) {
+			$lFactory = $server->getL10NFactory();
+			return new Notifier($lFactory);
+		});
+
+		$notificationManager = $server->getNotificationManager();
+		$notificationManager->registerNotifier(
+			function() use ($container) {
+				return $this->getContainer()->query(Notifier::class);
+			},
+			function () {
+				return [
+					'id' => Application::APP_ID,
+					'name' => Application::APP_NAME,
+				];
+			}
+		);
 	}
 }

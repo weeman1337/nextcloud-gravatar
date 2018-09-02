@@ -24,10 +24,16 @@ declare(strict_types=1);
 
 namespace OCA\Gravatar\Tests\Unit\Controller;
 
+use OCA\DAV\Db\Direct;
 use OCA\Gravatar\AppInfo\Application;
 use OCA\Gravatar\Controller\SettingsController;
+use OCA\Gravatar\Handler\DirectUpdateSyncUserAvatarHandler;
 use OCA\Gravatar\Settings\SecuritySettings;
 use OCP\IConfig;
+use OCP\IUser;
+use OCP\IUserSession;
+use OCP\Notification\IManager;
+use OCP\Notification\INotification;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -41,9 +47,34 @@ class SettingsControllerTest extends TestCase {
 	private $config;
 
 	/**
+	 * @var DirectUpdateSyncUserAvatarHandler|MockObject
+	 */
+	private $directUpdateSyncUserAvatarHandler;
+
+	/**
+	 * @var IUserSession|MockObject
+	 */
+	private $userSession;
+
+	/**
 	 * @var SettingsController
 	 */
 	private $settingsController;
+
+	/**
+	 * @var IUser|MockObject
+	 */
+	private $user;
+
+	/**
+	 * @var IManager|MockObject
+	 */
+	private $notificationManager;
+
+	/**
+	 * @var INotification|MockObject
+	 */
+	private $notification;
 
 	/**
 	 * Setups objects for tests.
@@ -53,7 +84,85 @@ class SettingsControllerTest extends TestCase {
 	 */
 	public function setupTestObjects() {
 		$this->config = $this->getMockBuilder(IConfig::class)->getMock();
-		$this->settingsController = new SettingsController($this->config);
+		$this->directUpdateSyncUserAvatarHandler = $this
+			->getMockBuilder(DirectUpdateSyncUserAvatarHandler::class)
+			->disableOriginalConstructor()
+			->getMock();
+		$this->user = $this->getMockBuilder(IUser::class) ->getMock();
+		$this->user->method('getUID')->willReturn('user1');
+		$this->userSession = $this->getMockBuilder(IUserSession::class)->getMock();
+		$this->notificationManager = $this->getMockBuilder(IManager::class)->getMock();
+		$this->notification = $this->getMockBuilder(INotification::class)->getMock();
+		$this->settingsController = new SettingsController(
+			$this->config,
+			$this->userSession,
+			$this->notificationManager,
+			$this->directUpdateSyncUserAvatarHandler
+		);
+	}
+
+	/**
+	 * Checks that disabling the user gravatar setting works and
+	 * the referenced notifications are dismissed.
+	 *
+	 * @test
+	 * @return void
+	 */
+	public function testDisableUserGravatarSetting() {
+		$this->userSession->method('getUser')
+			->willReturn($this->user);
+		$this->config->expects($this->once())
+			->method('setUserValue')
+			->with('user1', Application::APP_ID, 'useGravatar', 'false');
+		$this->expectMarkUseGravatarNotificationProcessed();
+		$this->settingsController->disableUserGravatar();
+	}
+
+	/**
+	 * Checks that enabling the user gravatar setting works,
+	 * the referenced notifications are dismissed and
+	 * a one time avatar sync is triggered.
+	 *
+	 * @test
+	 * @return void
+	 */
+	public function testEnableUserGravatarSetting() {
+		$this->userSession->method('getUser')
+			->willReturn($this->user);
+		$this->config->expects($this->once())
+			->method('setUserValue')
+			->with('user1', Application::APP_ID, 'useGravatar', 'true');
+		$this->expectMarkUseGravatarNotificationProcessed();
+		$this->directUpdateSyncUserAvatarHandler->expects($this->once())
+			->method('sync')
+			->with($this->user);
+		$this->settingsController->enableUserGravatar();
+	}
+
+	/**
+	 * Expects the use gravatar notification to set as processed.
+	 *
+	 * @return void
+	 */
+	private function expectMarkUseGravatarNotificationProcessed() {
+		$this->notificationManager->expects($this->once())
+			->method('createNotification')
+			->willReturn($this->notification);
+		$this->notificationManager->expects($this->once())
+			->method('markProcessed')
+			->with($this->notification);
+		$this->notification->expects($this->once())
+			->method('setApp')
+			->with(Application::APP_ID)
+			->willReturnSelf();
+		$this->notification->expects($this->once())
+			->method('setUser')
+			->with('user1')
+			->willReturnSelf();
+		$this->notification->expects($this->once())
+			->method('setObject')
+			->with('useGravatar', 'user1')
+			->willReturnSelf();
 	}
 
 	/**
@@ -65,7 +174,7 @@ class SettingsControllerTest extends TestCase {
 	public function testEnableAskUserSetting() {
 		$this->config->expects($this->once())
 			->method('setAppValue')
-			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, true);
+			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'true');
 		$response = $this->settingsController->enableAskUserSetting();
 		self::assertEquals(['askUser' => true,], $response->getData());
 	}
@@ -79,7 +188,7 @@ class SettingsControllerTest extends TestCase {
 	public function testDisableAskUserSetting() {
 		$this->config->expects($this->once())
 			->method('setAppValue')
-			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, false);
+			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'false');
 		$response = $this->settingsController->disableAskUserSetting();
 		self::assertEquals(['askUser' => false,], $response->getData());
 	}
