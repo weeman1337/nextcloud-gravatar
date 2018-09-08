@@ -6,13 +6,13 @@ Gravatar is an online service where users can upload an avatar linked to their e
 This app checks the user's Gravatar on every login and sets the avatar image.
 
 ## Settings
-You may configure the app to ask every user whether he wants to use Gravatar or not:
+You may configure the app to ask every user whether he wants to use Gravatar or not:  
 ![Gravatar app settings](/doc/settings.png "Gravatar app settings")
 
-This results in a notification:
+This results in a notification:  
 ![Gravatar notification](/doc/notification.png "Gravatar notification")
 
-And a setting:
+And a setting:  
 ![Gravatar user setting](/doc/user-setting.png "Gravatar user setting")
 
 ## Privacy note  
