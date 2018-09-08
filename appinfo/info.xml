@@ -9,7 +9,7 @@
 **Privacy note**
 This app sends hashed versions of the users' email address to Gravatar.
 See also their privacy policy: https://automattic.com/privacy/ .]]></description>
-    <version>1.0.0</version>
+    <version>0.9.0</version>
     <licence>agpl</licence>
     <author mail="mail@michael-weimann.eu" homepage="https://github.com/weeman1337/nextcloud-gravatar">Michael Weimann</author>
     <namespace>Gravatar</namespace>
