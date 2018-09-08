@@ -30,7 +30,7 @@ $user = $userSession->getUser();
 $userId = $user->getUID();
 
 $config = OC::$server->getConfig();
-$useGravatar = $config->getUserValue($userId, Application::APP_ID, 'useGravatar', 'yes') === 'yes';
+$useGravatar = $config->getUserValue($userId, Application::APP_ID, 'useGravatar', 'no') === 'yes';
 
 $response = new TemplateResponse(
 	Application::APP_ID,
