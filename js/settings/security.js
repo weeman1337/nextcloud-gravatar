@@ -19,7 +19,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$(document).ready(function(){
+$(document).ready(function() {
 
 	var askUserCheckbox = $('#ask-user');
 	var askUserLoader = $('#ask-user-loading');

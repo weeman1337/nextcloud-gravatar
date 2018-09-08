@@ -84,10 +84,10 @@ class SecuritySettingsTest extends TestCase {
 	public function testGetForm() {
 		$this->config->expects($this->once())
 			->method('getAppValue')
-			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, false)
-			->willReturn('askUserTestValue');
+			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'no')
+			->willReturn('no');
 		$response = $this->securitySettings->getForm();
 		self::assertEquals('settings/security', $response->getTemplateName());
-		self::assertEquals(['askUser' => 'askUserTestValue',], $response->getParams());
+		self::assertEquals(['askUser' => false,], $response->getParams());
 	}
 }

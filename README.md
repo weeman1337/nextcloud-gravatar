@@ -12,6 +12,9 @@ You may configure the app to ask every user whether he wants to use Gravatar or 
 This results in a notification:
 ![Gravatar notification](/doc/notification.png "Gravatar notification")
 
+And a setting:
+![Gravatar user setting](/doc/user-setting.png "Gravatar user setting")
+
 ## Privacy note  
 This app sends md5 hashed versions of the users' email addresses to Gravatar.
 See also their privacy policy: https://automattic.com/privacy/ .

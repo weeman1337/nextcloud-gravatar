@@ -22,27 +22,23 @@ declare(strict_types=1);
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-script(\OCA\Gravatar\AppInfo\Application::APP_ID, 'settings/security');
+use OCA\Gravatar\AppInfo\Application;
+use OCP\AppFramework\Http\TemplateResponse;
 
-?>
+$userSession = OC::$server->getUserSession();
+$user = $userSession->getUser();
+$userId = $user->getUID();
 
-<div id="gravatar" class="section">
-	<h2>
-		<?php p(\OCA\Gravatar\AppInfo\Application::APP_NAME); ?>
-		<img id="ask-user-loading" class="inlineblock" style="display: none;" src="/core/img/loading-small.gif">
-	</h2>
-	<p class="settings-hint">
-		<?php p($l->t('For Gravatar to work it sends a hashed version of the users\' email addresses to Gravatar.
-		Some users may not feel comfortable with that.')); ?>
-	</p>
-	<p>
-		<input
-			id="ask-user"
-			name="ask-user"
-			type="checkbox"
-			class="checkbox"
-			value="1"
-			<?php if ($_['askUser']): ?> checked="checked"<?php endif; ?>>
-		<label for="ask-user"><?php p($l->t('Enable users to control whether to use Gravatar or not')); ?></label>
-	</p>
-</div>
+$config = OC::$server->getConfig();
+$useGravatar = $config->getUserValue($userId, Application::APP_ID, 'useGravatar', 'yes') === 'yes';
+
+$response = new TemplateResponse(
+	Application::APP_ID,
+	'settings/personal',
+	[
+		'useGravatar' => $useGravatar,
+	]
+);
+
+$response->renderAs('blank');
+return $response->render();

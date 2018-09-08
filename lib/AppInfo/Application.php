@@ -33,6 +33,8 @@ use OCA\Gravatar\Hooks\UserSessionHook;
 use OCA\Gravatar\Notification\Notifier;
 use OCA\Gravatar\Settings\SecuritySettings;
 use \OCP\AppFramework\App;
+use OCP\IContainer;
+use OCP\IServerContainer;
 
 /**
  * The gravatar app.
@@ -48,7 +50,7 @@ class Application extends App {
 	 *
 	 * @param array $urlParams
 	 */
-	public function __construct(array $urlParams=array()){
+	public function __construct(array $urlParams=array()) {
 		parent::__construct(self::APP_ID, $urlParams);
 
 		$container = $this->getContainer();
@@ -85,6 +87,17 @@ class Application extends App {
 			return new UserSessionHook($userSession, $syncUserAvatarHandler);
 		});
 
+		$this->registerNotifier($server, $container);
+	}
+
+	/**
+	 * Registers the gravatar notifier.
+	 *
+	 * @param IServerContainer $server
+	 * @param IContainer $container
+	 * @return void
+	 */
+	private function registerNotifier(IServerContainer $server, IContainer $container) {
 		$container->registerService(Notifier::class, function() use ($server) {
 			$lFactory = $server->getL10NFactory();
 			$urlGenerator = $server->getURLGenerator();
@@ -103,5 +116,18 @@ class Application extends App {
 				];
 			}
 		);
+	}
+
+	/**
+	 * Registers the Gravatar user settings if the "ask user" setting is enabled.
+	 *
+	 * @return void
+	 */
+	public function registerUserSettings() {
+		$config = $this->getContainer()->getServer()->getConfig();
+		$askUser = $config->getAppValue(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'no') === 'yes';
+		if ($askUser === true) {
+			\OCP\App::registerPersonal(Application::APP_ID, 'personal');
+		}
 	}
 }

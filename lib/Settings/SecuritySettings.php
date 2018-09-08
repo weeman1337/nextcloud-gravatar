@@ -56,7 +56,7 @@ class SecuritySettings implements ISettings {
 	 */
 	public function getForm() {
 		$params = [
-			'askUser' => $this->config->getAppValue(Application::APP_ID, self::SETTING_ASK_USER, false),
+			'askUser' => $this->config->getAppValue(Application::APP_ID, self::SETTING_ASK_USER, 'no') === 'yes',
 		];
 		return new TemplateResponse(Application::APP_ID, 'settings/security', $params);
 	}
