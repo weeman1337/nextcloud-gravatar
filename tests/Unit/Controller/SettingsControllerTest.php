@@ -113,7 +113,7 @@ class SettingsControllerTest extends TestCase {
 			->willReturn($this->user);
 		$this->config->expects($this->once())
 			->method('setUserValue')
-			->with('user1', Application::APP_ID, 'useGravatar', 'false');
+			->with('user1', Application::APP_ID, 'useGravatar', 'no');
 		$this->expectMarkUseGravatarNotificationProcessed();
 		$this->settingsController->disableUserGravatar();
 	}
@@ -131,7 +131,7 @@ class SettingsControllerTest extends TestCase {
 			->willReturn($this->user);
 		$this->config->expects($this->once())
 			->method('setUserValue')
-			->with('user1', Application::APP_ID, 'useGravatar', 'true');
+			->with('user1', Application::APP_ID, 'useGravatar', 'yes');
 		$this->expectMarkUseGravatarNotificationProcessed();
 		$this->directUpdateSyncUserAvatarHandler->expects($this->once())
 			->method('sync')
@@ -174,7 +174,7 @@ class SettingsControllerTest extends TestCase {
 	public function testEnableAskUserSetting() {
 		$this->config->expects($this->once())
 			->method('setAppValue')
-			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'true');
+			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'yes');
 		$response = $this->settingsController->enableAskUserSetting();
 		self::assertEquals(['askUser' => true,], $response->getData());
 	}
@@ -188,7 +188,7 @@ class SettingsControllerTest extends TestCase {
 	public function testDisableAskUserSetting() {
 		$this->config->expects($this->once())
 			->method('setAppValue')
-			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'false');
+			->with(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'no');
 		$response = $this->settingsController->disableAskUserSetting();
 		self::assertEquals(['askUser' => false,], $response->getData());
 	}

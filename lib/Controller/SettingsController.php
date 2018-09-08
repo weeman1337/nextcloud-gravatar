@@ -105,7 +105,7 @@ class SettingsController extends Controller {
 		$this->config->setAppValue(
 			Application::APP_ID,
 			SecuritySettings::SETTING_ASK_USER,
-			$enabled ? 'true' : 'false'
+			$enabled ? 'yes' : 'no'
 		);
 		return new JSONResponse(['askUser' => $enabled,]);
 	}
@@ -118,7 +118,7 @@ class SettingsController extends Controller {
 	public function enableUserGravatar(): JSONResponse {
 		$user = $this->userSession->getUser();
 		$this->directUpdateSyncUserAvatarHandler->sync($user);
-		return $this->setUserUseGravatar('true');
+		return $this->setUserUseGravatar('yes');
 	}
 
 	/**
@@ -127,7 +127,7 @@ class SettingsController extends Controller {
 	 * @return JSONResponse
 	 */
 	public function disableUserGravatar(): JSONResponse {
-		return $this->setUserUseGravatar('false');
+		return $this->setUserUseGravatar('no');
 	}
 
 	/**

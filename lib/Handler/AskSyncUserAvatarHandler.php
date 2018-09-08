@@ -73,13 +73,13 @@ class AskSyncUserAvatarHandler implements SyncUserAvatarHandler {
 	 */
 	public function sync(IUser $user) {
 		$userId = $user->getUID();
-		$userAsked = $this->config->getUserValue($userId, Application::APP_ID, 'userAsked', 'false') !== 'false';
+		$userAsked = $this->config->getUserValue($userId, Application::APP_ID, 'userAsked', 'no') !== 'no';
 
 		if ($userAsked === false) {
 			$this->createAskGravatarNotification($user);
-			$this->config->setUserValue($userId, Application::APP_ID, 'userAsked', 'true');
+			$this->config->setUserValue($userId, Application::APP_ID, 'userAsked', 'yes');
 		} else {
-			$useGravatar = $this->config->getUserValue($user->getUID(), Application::APP_ID, 'useGravatar', 'false') !== 'false';
+			$useGravatar = $this->config->getUserValue($user->getUID(), Application::APP_ID, 'useGravatar', 'no') !== 'no';
 			if ($useGravatar === true) {
 				$this->directUpdateSyncUserAvatarHandler->sync($user);
 			}

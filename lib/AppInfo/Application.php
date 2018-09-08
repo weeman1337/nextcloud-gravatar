@@ -67,7 +67,7 @@ class Application extends App {
 
 		$container->registerService(SyncUserAvatarHandler::class, function() use ($container, $server) {
 			$config = $server->getConfig();
-			$askUser = $config->getAppValue(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'false') === 'true';
+			$askUser = $config->getAppValue(Application::APP_ID, SecuritySettings::SETTING_ASK_USER, 'no') === 'yes';
 
 			if ($askUser === true) {
 				$directUpdateSyncUserAvatarHandler = $container->query(DirectUpdateSyncUserAvatarHandler::class);
@@ -87,7 +87,8 @@ class Application extends App {
 
 		$container->registerService(Notifier::class, function() use ($server) {
 			$lFactory = $server->getL10NFactory();
-			return new Notifier($lFactory);
+			$urlGenerator = $server->getURLGenerator();
+			return new Notifier($lFactory, $urlGenerator);
 		});
 
 		$notificationManager = $server->getNotificationManager();
