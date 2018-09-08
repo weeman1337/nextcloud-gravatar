@@ -26,6 +26,7 @@ namespace OCA\Gravatar\Notification;
 
 use OCA\Gravatar\AppInfo\Application;
 use OCP\IL10N;
+use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
@@ -40,12 +41,19 @@ class Notifier implements INotifier {
 	private $lFactory;
 
 	/**
+	 * @var IURLGenerator
+	 */
+	protected $url;
+
+	/**
 	 * Notifier constructor.
 	 *
 	 * @param IFactory $lFactory
+	 * @param IURLGenerator $url
 	 */
-	public function __construct(IFactory $lFactory) {
+	public function __construct(IFactory $lFactory, IURLGenerator $url) {
 		$this->lFactory = $lFactory;
+		$this->url = $url;
 	}
 
 	/**
@@ -60,6 +68,9 @@ class Notifier implements INotifier {
 		if ($notification->getApp() !== Application::APP_ID) {
 			throw new \InvalidArgumentException();
 		}
+
+		$iconPath = $this->url->getAbsoluteURL('/svg/gravatar/app/000?v=1');
+		$notification->setIcon($iconPath);
 
 		$l = $this->lFactory->get(Application::APP_ID, $languageCode);
 
