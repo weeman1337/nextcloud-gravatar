@@ -17,7 +17,7 @@ See also their privacy policy: https://automattic.com/privacy/ .]]></description
     <category>integration</category>
     <bugs>https://github.com/weeman1337/nextcloud-gravatar/issues</bugs>
     <dependencies>
-        <nextcloud min-version="14" max-version="14"/>
+        <nextcloud min-version="14" max-version="15"/>
     </dependencies>
     <settings>
         <admin>OCA\Gravatar\Settings\SecuritySettings</admin>
